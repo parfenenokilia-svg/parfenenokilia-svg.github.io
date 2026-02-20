@@ -2502,7 +2502,7 @@
             <h3 class="recommend-name">${r.name}</h3>
             <p class="recommend-role">${r.role}</p>
             <div class="recommend-row">
-              <a class="tg-link" href="${r.tg}" target="_blank" rel="noopener noreferrer" aria-label="Telegram ${r.name}">
+              <a class="tg-link" data-rec-name="${r.name}" href="${r.tg}" target="_blank" rel="noopener noreferrer" aria-label="Telegram ${r.name}">
                 <img src="icons8-телеграм-50 — копия.png" alt="Telegram" />
               </a>
             </div>
@@ -2541,6 +2541,15 @@
           root.querySelectorAll('.recommend-tile').forEach((t, i) => t.classList.toggle('active', i === activeRecommendationIndex));
           document.getElementById('recommendDrawer').style.display = 'grid';
           setDrawer(list[activeRecommendationIndex]);
+        });
+      });
+
+      root.querySelectorAll('.tg-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          trackEvent('click_recommendation_telegram', {
+            name: link.getAttribute('data-rec-name') || '',
+            lang: currentLang
+          });
         });
       });
       if (activeRecommendationIndex === null) {
