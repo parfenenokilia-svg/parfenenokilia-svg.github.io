@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Илья Парфененок — Product Manager</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YJQMEHCP0S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YJQMEHCP0S');
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -2280,6 +2287,11 @@
     let flatCases = [];
     let activeRecommendationIndex = null;
     let currentLang = 'ru';
+
+    function trackEvent(name, params = {}) {
+      if (typeof window.gtag !== 'function') return;
+      window.gtag('event', name, params);
+    }
     const companyAccent = {
       Lerna: "#171717",
       Skillbox: "#171717"
@@ -2393,6 +2405,12 @@
           el.addEventListener('toggle', () => {
             if (el.open) {
               activeCaseIndex = idx;
+              trackEvent('open_case', {
+                case_title: (flatCases[idx] && flatCases[idx].title) || '',
+                company: (flatCases[idx] && flatCases[idx].company) || '',
+                lang: currentLang,
+                view: 'mobile'
+              });
               root.querySelectorAll('.case-mobile').forEach((other, i) => {
                 if (other !== el) {
                   other.open = false;
@@ -2431,6 +2449,12 @@
             return;
           }
           activeCaseIndex = idx;
+          trackEvent('open_case', {
+            case_title: item.title || '',
+            company: item.company || '',
+            lang: currentLang,
+            view: 'desktop'
+          });
           document.querySelectorAll('.case-tile').forEach((el, i) => el.classList.toggle('active', i === idx));
           const accent = companyAccent[item.company] || "#171717";
           const caseNo = String(idx + 1).padStart(2, "0");
@@ -2510,6 +2534,10 @@
             return;
           }
           activeRecommendationIndex = idx;
+          trackEvent('open_recommendation', {
+            name: list[idx] ? list[idx].name : '',
+            lang: currentLang
+          });
           root.querySelectorAll('.recommend-tile').forEach((t, i) => t.classList.toggle('active', i === activeRecommendationIndex));
           document.getElementById('recommendDrawer').style.display = 'grid';
           setDrawer(list[activeRecommendationIndex]);
@@ -2605,6 +2633,7 @@
       }
       if (targetIdx === -1) return;
 
+      trackEvent('open_uzum_growth_from_metrics', { lang: currentLang });
       activeCaseIndex = targetIdx;
       renderCases(currentLang);
 
@@ -2645,6 +2674,9 @@
     }
 
     function setLang(lang) {
+      if (currentLang !== lang) {
+        trackEvent('switch_language', { from: currentLang, to: lang });
+      }
       currentLang = lang;
       renderStatic(lang);
       renderHero(lang);
@@ -2659,6 +2691,38 @@
 
     document.querySelectorAll('.lang button').forEach(btn => {
       btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    });
+
+    const cvBtn = document.getElementById('cvBtn');
+    if (cvBtn) {
+      cvBtn.addEventListener('click', () => {
+        trackEvent('download_cv', { placement: 'hero', lang: currentLang });
+      });
+    }
+
+    const contactBtn = document.getElementById('contactBtn');
+    if (contactBtn) {
+      contactBtn.addEventListener('click', () => {
+        trackEvent('click_contact_button', { placement: 'hero', lang: currentLang });
+      });
+    }
+
+    const contactCvHead = document.getElementById('contactCvHead');
+    if (contactCvHead) {
+      contactCvHead.addEventListener('click', () => {
+        trackEvent('download_cv', { placement: 'contacts', lang: currentLang });
+      });
+    }
+
+    document.querySelectorAll('.contact').forEach((el) => {
+      el.addEventListener('click', () => {
+        const href = (el.getAttribute('href') || '').toLowerCase();
+        let channel = 'other';
+        if (href.startsWith('mailto:')) channel = 'email';
+        else if (href.includes('t.me')) channel = 'telegram';
+        else if (href.includes('linkedin.com')) channel = 'linkedin';
+        trackEvent('click_contact_link', { channel, lang: currentLang });
+      });
     });
 
     const heroMetricsNote = document.getElementById('heroMetricsNote');
