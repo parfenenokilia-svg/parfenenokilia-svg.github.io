@@ -274,6 +274,11 @@
       box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.12);
     }
 
+    .hero-metrics > .hero-metrics-note {
+      display: none !important;
+      margin: 0 !important;
+    }
+
     .bubble-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -361,6 +366,11 @@
       display: inline-block;
       pointer-events: auto;
       font-weight: 700;
+    }
+
+    .hero-metrics-note:empty {
+      display: none;
+      margin: 0;
     }
 
     .hero-metrics-note:hover {
